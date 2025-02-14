@@ -1,11 +1,9 @@
-import ListContainer from "./components/ListContainer";
+import Home from "./pages/Home";
 
 function App() {
-  // console.log(process.env.REACT_APP_API_SERVER);
   return (
     <>
-      <h1>Todo app 만들기</h1>
-      <ListContainer />
+      <Home />
     </>
   );
 }
