@@ -1,5 +1,4 @@
 import React from "react";
-import Navbar from "../components/Navbar";
 import RequestCard from "../components/RequestCard";
 import Footer from "../components/Footer";
 
@@ -28,8 +27,6 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      <Navbar />
-
       {/* Hero Section */}
       <section className="bg-blue-500 text-white py-16 text-center">
         <h1 className="text-4xl font-bold">해조 플랫폼</h1>
