@@ -1,9 +1,7 @@
-// src/pages/Auth/Register.tsx
 import React, { useState } from "react";
 import Footer from "../../components/Footer";
 import axios from "axios";
 
-// onChangePage prop 추가 (타입 정의)
 interface RegisterProps {
   onChangePage: (
     page: "home" | "login" | "register" | "requests" | "requestDetail"
@@ -20,24 +18,23 @@ const Register: React.FC<RegisterProps> = ({ onChangePage }) => {
     try {
       const res = await axios.post(
         "http://localhost:8080/api-server/register",
-        {
-          email,
-          nickname,
-          password,
-        }
+        { email, nickname, password }
       );
       if (res.data.isSuccess) {
         alert("회원가입 성공! 로그인하세요.");
         onChangePage("login");
       }
-    } catch (err) {
-      alert("회원가입 실패!");
+    } catch (err: any) {
+      if (err.response && err.response.status === 409) {
+        alert("중복된 이메일입니다. 다른 이메일을 사용해주세요.");
+      } else {
+        alert("회원가입 실패!");
+      }
     }
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Navbar 제거 (App.tsx에서 관리) */}
       <div className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">회원가입</h1>
         <form

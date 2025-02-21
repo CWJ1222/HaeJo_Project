@@ -11,6 +11,7 @@ const sequelize = new Sequelize(
 );
 
 db.User = require("./User")(sequelize, Sequelize);
+db.Request = require("./Request")(sequelize, Sequelize);
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
