@@ -24,8 +24,9 @@ app.use(
 app.use("/api-server", indexRouter);
 
 sequelize
-  .sync({ force: false })
+  .sync({ force: false }) // force: true 로 하면 기존 데이터가 삭제되니 주의
   .then(() => {
+    console.log("데이터베이스 동기화 완료");
     app.listen(PORT, () => {
       console.log(`http://localhost:${PORT}`);
     });

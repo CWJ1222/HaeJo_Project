@@ -10,7 +10,6 @@ import Requests from "./pages/Requests/Requests";
 import RequestDetail from "./pages/Requests/RequestDetatil";
 import Profile from "./pages/Profile";
 import ChatRoom from "./pages/Chat";
-import BidPage from "./pages/Requests/BidPage";
 import RequestCreate from "./pages/Requests/RequestCreate"; // ✅ 추가
 
 function App() {
@@ -65,8 +64,7 @@ function App() {
         return <Profile onChangePage={setPage} />;
       case "chat":
         return <ChatRoom />;
-      case "bid":
-        return <BidPage onChangePage={setPage} />;
+
       case "requestCreate": // ✅ 추가된 요구하기 페이지
         return <RequestCreate onChangePage={setPage} />;
       default:

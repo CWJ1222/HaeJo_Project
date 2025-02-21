@@ -1,4 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { setRequests } from "../store/modules/requests";
+import axios from "axios";
 import RequestCard from "../components/RequestCard";
 import Footer from "../components/Footer";
 
@@ -17,33 +21,35 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ onChangePage }) => {
-  const requests = [
-    {
-      id: 1,
-      title: "1만원 정도의 가성비 좋은 유선 이어폰 찾아줘!",
-      budget: "10,000원",
-      user: "user1",
-    },
-    {
-      id: 2,
-      title: "서울에서 예쁜 커스텀 케이크 가게 추천해줘!",
-      budget: "상관없음",
-      user: "user2",
-    },
-    {
-      id: 3,
-      title: "쿠팡, 네이버, 11번가 가격 비교해서 최저가 찾아줘!",
-      budget: "무료 요청",
-      user: "user3",
-    },
-  ];
+  const dispatch = useDispatch();
+  const requests = useSelector((state: RootState) => state.requests.requests);
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const currentUserId = currentUser?.id ?? 0; // Redux에서 로그인한 사용자 ID 가져오기
+
+  useEffect(() => {
+    const fetchLatestRequests = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:8080/api-server/latest-requests"
+        );
+        console.log("📌 최신 요청 데이터:", res.data.requests);
+
+        if (res.data.isSuccess) {
+          dispatch(setRequests(res.data.requests));
+        }
+      } catch (error) {
+        console.error("최신 요청 목록 불러오기 실패:", error);
+      }
+    };
+
+    fetchLatestRequests();
+  }, [dispatch]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       <section className="bg-blue-500 text-white py-16 text-center">
         <h1 className="text-4xl font-bold">해조 플랫폼</h1>
         <p className="mt-4 text-lg">시간을 절약하고, 정보를 쉽게 얻어보세요!</p>
-        <div className="mt-6 space-x-4"></div>
       </section>
 
       <section className="container mx-auto my-12 px-6">
@@ -52,10 +58,12 @@ const Home: React.FC<HomeProps> = ({ onChangePage }) => {
           {requests.map((request) => (
             <RequestCard
               key={request.id}
+              id={request.id}
               title={request.title}
-              budget={request.budget}
-              user={request.user}
-              onClick={() => onChangePage("bid")} // 🔥 onClick 추가
+              budget={`${request.budget.toLocaleString()}원`}
+              user={request.User?.nickname || "알 수 없음"}
+              currentUserId={currentUserId}
+              onChangePage={onChangePage} // 로그인 이동 가능하도록 전달
             />
           ))}
         </div>

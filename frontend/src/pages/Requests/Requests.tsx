@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import axios from "axios";
 import Footer from "../../components/Footer";
 import RequestCard from "../../components/RequestCard";
 
@@ -16,43 +19,88 @@ interface RequestsProps {
   ) => void;
 }
 
+interface RequestItem {
+  id: number;
+  title: string;
+  budget: number;
+  User?: { nickname: string };
+}
+
 const Requests: React.FC<RequestsProps> = ({ onChangePage }) => {
-  const mockRequests = [
-    {
-      id: 1,
-      title: "가성비 좋은 이어폰 추천",
-      budget: "10,000원",
-      user: "user1",
-    },
-    {
-      id: 2,
-      title: "서울 커스텀 케이크 가게 추천",
-      budget: "상관없음",
-      user: "user2",
-    },
-    {
-      id: 3,
-      title: "최저가 가격 비교 요청",
-      budget: "무료 요청",
-      user: "user3",
-    },
-  ];
+  const [requests, setRequests] = useState<RequestItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalRequests, setTotalRequests] = useState(0);
+  const limit = 5; // 한 페이지에 5개 표시
+
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const currentUserId = currentUser?.id ?? 0; // Redux에서 로그인한 사용자 ID 가져오기
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/api-server/requests?page=${page}&limit=${limit}`
+        );
+        if (res.data.isSuccess) {
+          setRequests(res.data.requests);
+          setTotalRequests(res.data.totalRequests);
+        }
+      } catch (error) {
+        console.error("요청 목록 불러오기 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRequests();
+  }, [page]);
+
+  const totalPages = Math.ceil(totalRequests / limit);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <div className="flex-grow container mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold mb-6">요청 목록</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockRequests.map((req) => (
-            <RequestCard
-              key={req.id}
-              title={req.title}
-              budget={req.budget}
-              user={req.user}
-              onClick={() => onChangePage("bid")} // 클릭하면 입찰 페이지로 이동
-            />
-          ))}
-        </div>
+
+        {loading ? (
+          <p>로딩 중...</p>
+        ) : requests.length === 0 ? (
+          <p>등록된 요청이 없습니다.</p>
+        ) : (
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {requests.map((req) => (
+                <RequestCard
+                  key={req.id}
+                  id={req.id}
+                  title={req.title}
+                  budget={`${req.budget.toLocaleString()}원`}
+                  user={req.User?.nickname ?? "알 수 없음"}
+                  currentUserId={currentUserId}
+                  onChangePage={onChangePage} // 로그인 이동 가능하도록 전달
+                />
+              ))}
+            </div>
+
+            {/* 페이지네이션 */}
+            <div className="flex justify-center mt-6">
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => setPage(index + 1)}
+                  className={`px-4 py-2 mx-1 rounded ${
+                    page === index + 1
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-300"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       <Footer />
     </div>

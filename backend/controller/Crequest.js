@@ -24,3 +24,51 @@ exports.createRequest = async (req, res) => {
     res.status(500).send("서버 오류!");
   }
 };
+exports.getRequests = async (req, res) => {
+  try {
+    let { page, limit } = req.query;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 5;
+
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await Request.findAndCountAll({
+      where: { status: "open" }, // ✅ 마감되지 않은 요청만 조회
+      include: [
+        {
+          model: User,
+          attributes: ["id", "nickname"], // 요청한 사용자의 닉네임 포함
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset,
+    });
+
+    res.send({ isSuccess: true, totalRequests: count, requests: rows });
+  } catch (err) {
+    console.error("요청 목록 불러오기 오류:", err);
+    res.status(500).send("서버 오류!");
+  }
+};
+exports.getLatestRequests = async (req, res) => {
+  try {
+    const requests = await Request.findAll({
+      where: { status: "open" }, // ✅ 마감되지 않은 요청만 가져오기
+      include: [
+        {
+          model: User,
+          attributes: ["nickname"], // 요청한 사용자의 닉네임 가져오기
+          required: false,
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+      limit: 3,
+    });
+
+    res.send({ isSuccess: true, requests });
+  } catch (err) {
+    console.error("최신 요청 불러오기 오류:", err);
+    res.status(500).send("서버 오류!");
+  }
+};
