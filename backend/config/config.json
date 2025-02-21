@@ -4,14 +4,15 @@
     "password": "1234",
     "database": "sesac",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "session_secret": "haejo_secret_key"
   },
-
   "production": {
     "username": "admin",
     "password": "sessac12345!",
     "database": "sesac",
     "host": "sessac-rds.cp8ysm8iakaa.ap-northeast-2.rds.amazonaws.com",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "session_secret": "haejo_secret_key"
   }
 }

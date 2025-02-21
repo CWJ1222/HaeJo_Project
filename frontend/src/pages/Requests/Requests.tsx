@@ -1,27 +1,38 @@
-// src/pages/Requests/Requests.tsx
 import React from "react";
-
 import Footer from "../../components/Footer";
 import RequestCard from "../../components/RequestCard";
 
-const Requests: React.FC = () => {
-  // 실제로는 API 호출로 가져올 데이터
+interface RequestsProps {
+  onChangePage: (
+    page:
+      | "home"
+      | "login"
+      | "register"
+      | "requests"
+      | "requestDetail"
+      | "profile"
+      | "chat"
+      | "bid"
+  ) => void;
+}
+
+const Requests: React.FC<RequestsProps> = ({ onChangePage }) => {
   const mockRequests = [
     {
       id: 1,
-      title: "1만원 정도의 가성비 좋은 유선 이어폰 찾아줘!",
+      title: "가성비 좋은 이어폰 추천",
       budget: "10,000원",
       user: "user1",
     },
     {
       id: 2,
-      title: "서울에서 예쁜 커스텀 케이크 가게 추천해줘!",
+      title: "서울 커스텀 케이크 가게 추천",
       budget: "상관없음",
       user: "user2",
     },
     {
       id: 3,
-      title: "쿠팡, 네이버, 11번가 가격 비교해서 최저가 찾아줘!",
+      title: "최저가 가격 비교 요청",
       budget: "무료 요청",
       user: "user3",
     },
@@ -38,6 +49,7 @@ const Requests: React.FC = () => {
               title={req.title}
               budget={req.budget}
               user={req.user}
+              onClick={() => onChangePage("bid")} // 클릭하면 입찰 페이지로 이동
             />
           ))}
         </div>

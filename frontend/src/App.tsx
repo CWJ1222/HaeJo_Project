@@ -1,4 +1,3 @@
-// src/App.tsx
 import React, { useState } from "react";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -6,35 +5,47 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import Requests from "./pages/Requests/Requests";
 import RequestDetail from "./pages/Requests/RequestDetatil";
+import Profile from "./pages/Profile";
+import ChatRoom from "./pages/Chat";
+import BidPage from "./pages/Requests/BidPage";
 
 function App() {
-  // 현재 보여줄 페이지를 상태로 관리 (기본값: "home")
   const [page, setPage] = useState<
-    "home" | "login" | "register" | "requests" | "requestDetail"
+    | "home"
+    | "login"
+    | "register"
+    | "requests"
+    | "requestDetail"
+    | "profile"
+    | "chat"
+    | "bid"
   >("home");
 
-  // 각 페이지를 조건부로 렌더링
   const renderPage = () => {
     switch (page) {
       case "home":
-        return <Home />;
+        return <Home onChangePage={setPage} />;
       case "login":
-        return <Login />;
+        return <Login onChangePage={setPage} />;
       case "register":
-        return <Register />;
+        return <Register onChangePage={setPage} />;
       case "requests":
-        return <Requests />;
+        return <Requests onChangePage={setPage} />;
       case "requestDetail":
-        // 예시로, 임의의 id=1을 넘겨줌
-        return <RequestDetail id={1} />;
+        return <RequestDetail />;
+      case "profile":
+        return <Profile />;
+      case "chat":
+        return <ChatRoom />;
+      case "bid":
+        return <BidPage onChangePage={setPage} />;
       default:
-        return <Home />;
+        return <Home onChangePage={setPage} />;
     }
   };
 
   return (
     <div>
-      {/* 네비게이션 메뉴는 Navbar 컴포넌트에서 처리 */}
       <Navbar onChangePage={setPage} />
       {renderPage()}
     </div>

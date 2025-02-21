@@ -1,9 +1,16 @@
-// src/components/Navbar.tsx
 import React from "react";
 
 interface NavbarProps {
   onChangePage: (
-    page: "home" | "login" | "register" | "requests" | "requestDetail"
+    page:
+      | "home"
+      | "login"
+      | "register"
+      | "requests"
+      | "requestDetail"
+      | "profile"
+      | "chat"
+      | "bid"
   ) => void;
 }
 
@@ -38,6 +45,12 @@ const Navbar: React.FC<NavbarProps> = ({ onChangePage }) => {
             className="bg-white text-blue-500 px-4 py-2 rounded-lg font-semibold shadow-md"
           >
             로그인
+          </button>
+          <button
+            onClick={() => onChangePage("chat")}
+            className="hover:text-gray-200"
+          >
+            채팅
           </button>
         </div>
       </div>

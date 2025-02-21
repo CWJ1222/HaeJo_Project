@@ -1,16 +1,27 @@
 const express = require("express");
-const app = express();
-const PORT = 8080;
+const session = require("express-session");
+const cors = require("cors");
 const { sequelize } = require("./models");
 const indexRouter = require("./routes");
-const serverPerfix = "/api-server";
-const cors = require("cors");
+
+const app = express();
+const PORT = 8080;
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(cors());
-// /api-server
-app.use(serverPerfix, indexRouter);
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+
+// Session 설정
+app.use(
+  session({
+    secret: "haejo_secret_key",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false, httpOnly: true, maxAge: 1000 * 60 * 60 }, // 1시간 유지
+  })
+);
+
+app.use("/api-server", indexRouter);
 
 sequelize
   .sync({ force: false })
@@ -20,6 +31,5 @@ sequelize
     });
   })
   .catch((err) => {
-    console.log(err);
-    console.log("database sync 오류!");
+    console.log("Database sync 오류!", err);
   });
