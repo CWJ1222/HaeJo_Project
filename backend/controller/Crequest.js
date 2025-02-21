@@ -26,21 +26,29 @@ exports.createRequest = async (req, res) => {
 };
 exports.getRequests = async (req, res) => {
   try {
-    let { page, limit } = req.query;
+    let { page, limit, sort } = req.query;
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 5;
 
     const offset = (page - 1) * limit;
 
+    // ✅ 정렬 기준 설정
+    let order = [["createdAt", "DESC"]]; // 기본값: 최신순
+    if (sort === "budget") {
+      order = [["budget", "DESC"]]; // 예산 높은 순
+    } else if (sort === "time") {
+      order = [["createdAt", "DESC"]]; // 최신순
+    }
+
     const { count, rows } = await Request.findAndCountAll({
-      where: { status: "open" }, // ✅ 마감되지 않은 요청만 조회
+      where: { status: "open" }, // 마감되지 않은 요청만 조회
       include: [
         {
           model: User,
-          attributes: ["id", "nickname"], // 요청한 사용자의 닉네임 포함
+          attributes: ["id", "nickname"],
         },
       ],
-      order: [["createdAt", "DESC"]],
+      order,
       limit,
       offset,
     });

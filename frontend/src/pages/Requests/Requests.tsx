@@ -23,6 +23,7 @@ interface RequestItem {
   id: number;
   title: string;
   budget: number;
+  createdAt: string;
   User?: { nickname: string };
 }
 
@@ -31,17 +32,19 @@ const Requests: React.FC<RequestsProps> = ({ onChangePage }) => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalRequests, setTotalRequests] = useState(0);
+  const [sort, setSort] = useState<"budget" | "time">("time"); // ✅ 기본 정렬: 최신순
   const limit = 5; // 한 페이지에 5개 표시
 
   const currentUser = useSelector((state: RootState) => state.auth.user);
-  const currentUserId = currentUser?.id ?? 0; // Redux에서 로그인한 사용자 ID 가져오기
+  const currentUserId = currentUser?.id ?? 0;
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api-server/requests?page=${page}&limit=${limit}`
+          `http://localhost:8080/api-server/requests?page=${page}&limit=${limit}&sort=${sort}`
         );
+
         if (res.data.isSuccess) {
           setRequests(res.data.requests);
           setTotalRequests(res.data.totalRequests);
@@ -54,7 +57,7 @@ const Requests: React.FC<RequestsProps> = ({ onChangePage }) => {
     };
 
     fetchRequests();
-  }, [page]);
+  }, [page, sort]);
 
   const totalPages = Math.ceil(totalRequests / limit);
 
@@ -62,6 +65,19 @@ const Requests: React.FC<RequestsProps> = ({ onChangePage }) => {
     <div className="flex flex-col min-h-screen bg-gray-100">
       <div className="flex-grow container mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold mb-6">요청 목록</h1>
+
+        {/* ✅ 정렬 선택 드롭다운 */}
+        <div className="mb-4">
+          <label className="mr-2">정렬 기준:</label>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as "budget" | "time")}
+            className="border px-2 py-1 rounded"
+          >
+            <option value="time">최신 등록 순</option>
+            <option value="budget">예산 높은 순</option>
+          </select>
+        </div>
 
         {loading ? (
           <p>로딩 중...</p>
@@ -78,7 +94,7 @@ const Requests: React.FC<RequestsProps> = ({ onChangePage }) => {
                   budget={`${req.budget.toLocaleString()}원`}
                   user={req.User?.nickname ?? "알 수 없음"}
                   currentUserId={currentUserId}
-                  onChangePage={onChangePage} // 로그인 이동 가능하도록 전달
+                  onChangePage={onChangePage}
                 />
               ))}
             </div>
