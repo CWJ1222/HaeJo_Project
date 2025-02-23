@@ -16,6 +16,7 @@ exports.createRequest = async (req, res) => {
       description,
       budget,
       userId,
+      status: "open",
     });
 
     res.send({ isSuccess: true, requestId: newRequest.id });

@@ -13,6 +13,7 @@ const sequelize = new Sequelize(
 db.User = require("./User")(sequelize, Sequelize);
 db.Request = require("./Request")(sequelize, Sequelize);
 db.Bid = require("./Bid")(sequelize, Sequelize); // ✅ Bid 모델 추가
+db.Transaction = require("./Transaction")(sequelize, Sequelize);
 
 // 관계 설정
 db.User.hasMany(db.Request, {
@@ -43,6 +44,53 @@ db.Bid.belongsTo(db.User, {
 });
 db.Bid.belongsTo(db.Request, {
   foreignKey: "requestId",
+  targetKey: "id",
+  onDelete: "CASCADE",
+});
+
+// ✅ 요청(Request)과 결제(Transaction)의 관계 (1:1)
+db.Request.hasOne(db.Transaction, {
+  foreignKey: "requestId",
+  sourceKey: "id",
+  onDelete: "CASCADE",
+});
+db.Transaction.belongsTo(db.Request, {
+  foreignKey: "requestId",
+  targetKey: "id",
+  onDelete: "CASCADE",
+});
+
+// ✅ 입찰(Bid)과 결제(Transaction)의 관계 (1:1)
+db.Bid.hasOne(db.Transaction, {
+  foreignKey: "bidId",
+  sourceKey: "id",
+  onDelete: "CASCADE",
+});
+db.Transaction.belongsTo(db.Bid, {
+  foreignKey: "bidId",
+  targetKey: "id",
+  onDelete: "CASCADE",
+});
+
+// ✅ 사용자(User)와 결제(Transaction)의 관계 (요청자/제공자)
+db.User.hasMany(db.Transaction, {
+  foreignKey: "userId",
+  sourceKey: "id",
+  onDelete: "CASCADE",
+});
+db.Transaction.belongsTo(db.User, {
+  foreignKey: "userId",
+  targetKey: "id",
+  onDelete: "CASCADE",
+});
+
+db.User.hasMany(db.Transaction, {
+  foreignKey: "providerId",
+  sourceKey: "id",
+  onDelete: "CASCADE",
+});
+db.Transaction.belongsTo(db.User, {
+  foreignKey: "providerId",
   targetKey: "id",
   onDelete: "CASCADE",
 });

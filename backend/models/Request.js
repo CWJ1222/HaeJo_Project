@@ -19,6 +19,11 @@ const RequestModel = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      amount: {
+        // ✅ 결제 금액 저장 (선택된 입찰 금액)
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -28,7 +33,14 @@ const RequestModel = (sequelize, DataTypes) => {
         },
       },
       status: {
-        type: DataTypes.ENUM("open", "closed"),
+        type: DataTypes.ENUM(
+          "open",
+          "closed",
+          "paid",
+          "draft",
+          "submitted",
+          "completed"
+        ),
         defaultValue: "open",
       },
       selectedBidId: {

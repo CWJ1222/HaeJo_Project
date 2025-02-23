@@ -113,9 +113,17 @@ exports.selectBid = async (req, res) => {
       });
     }
 
+    // ✅ 선택된 입찰 정보 가져오기
+    const selectedBid = await Bid.findByPk(bidId);
+    if (!selectedBid) {
+      return res
+        .status(404)
+        .send({ isSuccess: false, message: "해당 입찰을 찾을 수 없습니다." });
+    }
+
     // 요청을 마감하고 선택한 입찰을 저장
     await Request.update(
-      { status: "closed", selectedBidId: bidId }, // 요청 상태를 마감(closed) 상태로 변경
+      { status: "closed", selectedBidId: bidId, amount: selectedBid.amount }, // ✅ 수정된 부분
       { where: { id: requestId } }
     );
 
