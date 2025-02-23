@@ -94,12 +94,10 @@ exports.selectBid = async (req, res) => {
     const request = await Request.findOne({ where: { id: requestId, userId } });
 
     if (!request) {
-      return res
-        .status(403)
-        .send({
-          isSuccess: false,
-          message: "이 요청을 선택할 권한이 없습니다.",
-        });
+      return res.status(403).send({
+        isSuccess: false,
+        message: "이 요청을 선택할 권한이 없습니다.",
+      });
     }
 
     // 요청을 마감하고 선택한 입찰을 저장
@@ -114,6 +112,35 @@ exports.selectBid = async (req, res) => {
     });
   } catch (err) {
     console.error("입찰 선택 오류:", err);
+    res.status(500).send("서버 오류!");
+  }
+};
+
+// 📌 내가 입찰한 요청 목록 가져오기
+exports.getMyBids = async (req, res) => {
+  try {
+    const userId = req.session.user?.id;
+    if (!userId) {
+      return res
+        .status(401)
+        .send({ isSuccess: false, message: "로그인이 필요합니다." });
+    }
+
+    // 내가 입찰한 요청 목록 조회
+    const myBids = await Bid.findAll({
+      where: { userId },
+      include: [
+        {
+          model: Request,
+          attributes: ["id", "title", "budget"], // 요청 정보 가져오기
+          include: [{ model: User, attributes: ["id", "nickname"] }], // 요청을 등록한 사용자 정보 포함
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+    res.send({ isSuccess: true, myBids });
+  } catch (err) {
+    console.error("내 입찰 목록 가져오기 오류:", err);
     res.status(500).send("서버 오류!");
   }
 };

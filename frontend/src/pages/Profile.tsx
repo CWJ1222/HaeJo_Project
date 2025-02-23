@@ -24,14 +24,25 @@ interface RequestItem {
   Bids: Bid[];
 }
 
+interface MyBid {
+  id: number;
+  amount: number;
+  Request: {
+    id: number;
+    title: string;
+    budget: number;
+    User: { nickname: string };
+  };
+}
+
 const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
   const [nickname, setNickname] = useState(user?.nickname || "");
   const [password, setPassword] = useState("");
   const [myRequests, setMyRequests] = useState<RequestItem[]>([]);
+  const [myBids, setMyBids] = useState<MyBid[]>([]); // ✅ 내 입찰 목록 추가
 
-  // ✅ 백엔드에서 내 요청 목록과 입찰자 정보 가져오기
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -69,13 +80,30 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
       }
     };
 
+    const fetchMyBids = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:8080/api-server/my-bids",
+          {
+            withCredentials: true,
+          }
+        );
+
+        if (res.data.isSuccess) {
+          setMyBids(res.data.myBids);
+        }
+      } catch (error) {
+        console.error("내 입찰 목록 가져오기 실패:", error);
+      }
+    };
+
     if (!user) {
       fetchUserProfile();
     }
     fetchMyRequests();
+    fetchMyBids(); // ✅ 내 입찰 목록 불러오기
   }, [user, dispatch, onChangePage]);
 
-  // ✅ 입찰 선택 및 요청 마감 처리
   const handleSelectBid = async (requestId: number, bidId: number) => {
     try {
       const res = await axios.post(
@@ -97,7 +125,6 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
     }
   };
 
-  // ✅ 프로필 정보 업데이트 (닉네임 및 비밀번호 변경)
   const handleUpdateProfile = async () => {
     try {
       const res = await axios.put(
@@ -177,7 +204,23 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
         변경사항 저장
       </button>
 
-      {/* ✅ 내가 등록한 요청과 입찰 목록 */}
+      {/* ✅ 내가 입찰한 목록 */}
+      <h2 className="text-2xl font-bold mt-8">내 입찰 목록</h2>
+
+      {myBids.length === 0 ? (
+        <p className="mt-4">입찰한 요청이 없습니다.</p>
+      ) : (
+        myBids.map((bid) => (
+          <div key={bid.id} className="border p-4 mb-4">
+            <h3 className="text-lg font-bold">{bid.Request.title}</h3>
+            <p>입찰 금액: {bid.amount.toLocaleString()}원</p>
+            <p>요청자: {bid.Request.User.nickname}</p>
+            <p>예산: {bid.Request.budget.toLocaleString()}원</p>
+          </div>
+        ))
+      )}
+
+      {/* ✅ 내가 등록한 요청 */}
       <h2 className="text-2xl font-bold mt-8">내 요청 목록</h2>
 
       {myRequests.length === 0 ? (
@@ -189,14 +232,13 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
             <p>예산: {request.budget.toLocaleString()}원</p>
             <p>상태: {request.status === "closed" ? "마감됨" : "진행 중"}</p>
 
-            {/* ✅ 입찰 목록 */}
             {request.status === "open" && request.Bids.length > 0 && (
               <div>
                 <h4 className="text-lg font-semibold mt-2">입찰 목록</h4>
                 {request.Bids.map((bid) => (
                   <div
                     key={bid.id}
-                    className="flex justify-between items-center bg-gray-100 p-2 mt-2 rounded"
+                    className="flex justify-between bg-gray-100 p-2 mt-2 rounded"
                   >
                     <p>
                       {bid.User.nickname}: {bid.amount.toLocaleString()}원

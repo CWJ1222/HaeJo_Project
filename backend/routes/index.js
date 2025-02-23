@@ -23,5 +23,6 @@ router.get("/bid/:requestId/:userId", bidController.getUserBid); // 사용자의
 
 router.get("/my-requests", bidController.getMyRequestsAndBids);
 router.post("/select-bid", bidController.selectBid);
+router.get("/my-bids", bidController.getMyBids); // ✅ 내가 입찰한 요청 목록 가져오기
 
 module.exports = router;
