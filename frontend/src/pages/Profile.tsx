@@ -21,6 +21,7 @@ interface RequestItem {
   title: string;
   budget: number;
   status: string;
+  selectedBid?: { amount: number; User: { nickname: string } }; // ✅ 추가
   Bids: Bid[];
 }
 
@@ -232,6 +233,15 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
             <p>예산: {request.budget.toLocaleString()}원</p>
             <p>상태: {request.status === "closed" ? "마감됨" : "진행 중"}</p>
 
+            {/* ✅ 마감된 요청일 경우 선택된 입찰 금액 표시 */}
+            {request.status === "closed" && request.selectedBid && (
+              <p className="text-blue-500 mt-2">
+                선택된 입찰 금액: {request.selectedBid.amount.toLocaleString()}
+                원 ({request.selectedBid.User.nickname})
+              </p>
+            )}
+
+            {/* ✅ 진행 중인 요청이라면 입찰 목록 표시 */}
             {request.status === "open" && request.Bids.length > 0 && (
               <div>
                 <h4 className="text-lg font-semibold mt-2">입찰 목록</h4>

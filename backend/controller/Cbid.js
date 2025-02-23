@@ -64,7 +64,7 @@ exports.getMyRequestsAndBids = async (req, res) => {
           include: [
             {
               model: User,
-              attributes: ["id", "nickname", "email"], // 입찰한 사람의 정보
+              attributes: ["id", "nickname", "email"], // 입찰한 사람 정보
             },
           ],
         },
@@ -72,7 +72,20 @@ exports.getMyRequestsAndBids = async (req, res) => {
       order: [["createdAt", "DESC"]],
     });
 
-    res.send({ isSuccess: true, myRequests });
+    // 선택된 입찰 정보 추가
+    const requestsWithSelectedBid = await Promise.all(
+      myRequests.map(async (request) => {
+        if (request.selectedBidId) {
+          const selectedBid = await Bid.findByPk(request.selectedBidId, {
+            include: [{ model: User, attributes: ["nickname"] }],
+          });
+          return { ...request.toJSON(), selectedBid };
+        }
+        return request.toJSON();
+      })
+    );
+
+    res.send({ isSuccess: true, myRequests: requestsWithSelectedBid });
   } catch (err) {
     console.error("내 요청 및 입찰 목록 가져오기 오류:", err);
     res.status(500).send("서버 오류!");
