@@ -198,8 +198,8 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
       await widgets.requestPayment({
         orderId: `order_${selectedRequest.id}`,
         orderName: selectedRequest.title,
-        successUrl: window.location.origin + "/success",
-        failUrl: window.location.origin + "/fail",
+        successUrl: `${window.location.origin}/success`, // ✅ 올바른 경로로 설정
+        failUrl: `${window.location.origin}/fail`, // ✅ 올바른 경로로 설정
         customerEmail: user?.email || "",
         customerName: user?.nickname || "",
       });
