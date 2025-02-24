@@ -5,6 +5,8 @@ const mainController = require("../controller/Cmain");
 const requestController = require("../controller/Crequest");
 const bidController = require("../controller/Cbid");
 const paymentController = require("../controller/Cpayment");
+const reportController = require("../controller/Creport");
+const upload = require("../middlewares/upload");
 
 router.post("/register", userController.register);
 router.post("/login", userController.login);
@@ -27,4 +29,8 @@ router.post("/select-bid", bidController.selectBid);
 router.get("/my-bids", bidController.getMyBids); // ✅ 내가 입찰한 요청 목록 가져오기
 
 router.post("/confirm", paymentController);
+
+router.post("/report", upload.single("image"), reportController.createReport);
+router.get("/report/:requestId", reportController.getReportByRequest);
+
 module.exports = router;

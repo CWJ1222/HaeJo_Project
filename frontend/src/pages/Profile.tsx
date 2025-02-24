@@ -7,6 +7,8 @@ import {
   TossPaymentsWidgets,
   loadTossPayments,
 } from "@tosspayments/tosspayments-sdk";
+import MyBids from "./Profile/MyBids";
+import { Bid, MyBid } from "../types/bid";
 
 const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm"; // Toss Payments Client Key
 
@@ -14,12 +16,6 @@ interface ProfileProps {
   onChangePage: (
     page: "home" | "login" | "register" | "requests" | "profile"
   ) => void;
-}
-
-interface Bid {
-  id: number;
-  amount: number;
-  User: { id: number; nickname: string };
 }
 
 interface RequestItem {
@@ -32,16 +28,14 @@ interface RequestItem {
   Bids: Bid[];
 }
 
-interface MyBid {
-  id: number;
-  amount: number;
-  Request: {
-    id: number;
-    title: string;
-    budget: number;
-    User: { nickname: string };
-  };
-}
+const statusText: { [key: string]: string } = {
+  open: "진행 중",
+  closed: "마감됨",
+  paid: "결제 완료",
+  draft: "작성 중",
+  submitted: "제출됨",
+  completed: "완료됨",
+};
 
 const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
   const dispatch = useDispatch();
@@ -300,21 +294,7 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
         변경사항 저장
       </button>
 
-      {/* ✅ 내가 입찰한 목록 */}
-      <h2 className="text-2xl font-bold mt-8">내 입찰 목록</h2>
-
-      {myBids.length === 0 ? (
-        <p className="mt-4">입찰한 요청이 없습니다.</p>
-      ) : (
-        myBids.map((bid) => (
-          <div key={bid.id} className="border p-4 mb-4">
-            <h3 className="text-lg font-bold">{bid.Request.title}</h3>
-            <p>입찰 금액: {bid.amount.toLocaleString()}원</p>
-            <p>요청자: {bid.Request.User.nickname}</p>
-            <p>예산: {bid.Request.budget.toLocaleString()}원</p>
-          </div>
-        ))
-      )}
+      <MyBids myBids={myBids} />
 
       {/* ✅ 내가 등록한 요청 */}
       <h2 className="text-2xl font-bold mt-8">내 요청 목록</h2>
@@ -326,37 +306,9 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
           <div key={request.id} className="border p-4 mb-4">
             <h3 className="text-lg font-bold">{request.title}</h3>
             <p>예산: {request.budget.toLocaleString()}원</p>
-            <p
-              className={`mt-2 text-sm font-semibold ${
-                request.status === "open"
-                  ? "text-green-500" // 진행 중
-                  : request.status === "closed"
-                  ? "text-gray-500" // 마감됨
-                  : request.status === "paid"
-                  ? "text-blue-500" // 결제 완료
-                  : request.status === "draft"
-                  ? "text-yellow-500" // 작성 중
-                  : request.status === "submitted"
-                  ? "text-purple-500" // 제출됨
-                  : request.status === "completed"
-                  ? "text-indigo-500" // 완료됨
-                  : "text-gray-500"
-              }`}
-            >
-              상태:{" "}
-              {request.status === "open"
-                ? "진행 중"
-                : request.status === "closed"
-                ? "마감됨"
-                : request.status === "paid"
-                ? "결제 완료"
-                : request.status === "draft"
-                ? "작성 중"
-                : request.status === "submitted"
-                ? "제출됨"
-                : request.status === "completed"
-                ? "완료됨"
-                : "알 수 없음"}
+
+            <p className="mt-2 text-sm font-semibold">
+              상태: {statusText[request.status] || "알 수 없음"}
             </p>
 
             {/* ✅ 마감된 요청일 경우 선택된 입찰 금액 표시 */}
@@ -375,6 +327,7 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
                 </button>
               </div>
             )}
+
             {isPaymentOpen && (
               <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
                 <div className="bg-white p-6 rounded shadow-lg w-80">
