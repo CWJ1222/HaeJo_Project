@@ -11,6 +11,7 @@ export interface MyBid {
     id: number;
     title: string;
     budget: number;
+    status: string; // ✅ 상태 필드 추가
     User: { nickname: string };
   };
 }

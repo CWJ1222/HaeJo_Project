@@ -153,7 +153,7 @@ exports.getMyBids = async (req, res) => {
       include: [
         {
           model: Request,
-          attributes: ["id", "title", "budget"], // 요청 정보 가져오기
+          attributes: ["id", "title", "budget", "status"], // 요청 정보 가져오기
           include: [{ model: User, attributes: ["id", "nickname"] }], // 요청을 등록한 사용자 정보 포함
         },
       ],
