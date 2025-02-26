@@ -33,6 +33,9 @@ exports.createReport = async (req, res) => {
       imageUrl: req.file ? `/uploads/${req.file.filename}` : null, // 이미지가 있으면 저장
     });
 
+    // ✅ 리포트 생성 시 `hasReport` 업데이트
+    await Request.update({ hasReport: true }, { where: { id: requestId } });
+
     res.send({ isSuccess: true, reportId: newReport.id });
   } catch (error) {
     console.error("리포트 생성 오류:", error);
@@ -46,7 +49,9 @@ exports.getReportByRequest = async (req, res) => {
     const { requestId } = req.params;
     const userId = req.session.user?.id;
 
-    const report = await Report.findOne({ where: { requestId } });
+    const report = await Report.findOne({
+      where: { requestId },
+    });
 
     if (!report || report.customerId !== userId) {
       return res.status(403).send({
@@ -55,7 +60,19 @@ exports.getReportByRequest = async (req, res) => {
       });
     }
 
-    res.send({ isSuccess: true, report });
+    // ✅ 이미지 URL을 정적 경로 포함하여 반환
+    const imageUrl = report.imageUrl
+      ? `http://localhost:8080${report.imageUrl}`
+      : null;
+
+    res.send({
+      isSuccess: true,
+      report: {
+        id: report.id,
+        content: report.content,
+        imageUrl, // ✅ 프론트에서 접근할 수 있도록 절대 경로 반환
+      },
+    });
   } catch (error) {
     console.error("리포트 조회 오류:", error);
     res.status(500).send("서버 오류!");

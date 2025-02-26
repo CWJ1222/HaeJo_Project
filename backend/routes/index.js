@@ -7,6 +7,7 @@ const bidController = require("../controller/Cbid");
 const paymentController = require("../controller/Cpayment");
 const reportController = require("../controller/Creport");
 const upload = require("../middlewares/upload");
+const { getMyRequests } = require("../controller/Crequest");
 
 router.post("/register", userController.register);
 router.post("/login", userController.login);
@@ -32,5 +33,6 @@ router.post("/confirm", paymentController);
 
 router.post("/report", upload.single("image"), reportController.createReport);
 router.get("/report/:requestId", reportController.getReportByRequest);
+router.get("/my-requests", getMyRequests); // ✅ 이 라우트가 등록되어 있는지 확인
 
 module.exports = router;

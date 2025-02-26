@@ -3,6 +3,7 @@ const session = require("express-session");
 const cors = require("cors");
 const { sequelize } = require("./models");
 const indexRouter = require("./routes");
+const path = require("path");
 
 const app = express();
 const PORT = 8080;
@@ -22,6 +23,7 @@ app.use(
 );
 
 app.use("/api-server", indexRouter);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 sequelize
   .sync({ force: false }) // force: true 로 하면 기존 데이터가 삭제되니 주의

@@ -9,4 +9,5 @@ export interface RequestItem {
   User?: { id: number; nickname: string }; // ✅ `id` 포함하도록 수정
   selectedBid?: { id: number; amount: number; User: { nickname: string } };
   Bids: Bid[];
+  hasReport?: boolean; // ✅ 리포트 존재 여부 추가
 }

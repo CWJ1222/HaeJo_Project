@@ -1,4 +1,4 @@
-const { Request, User } = require("../models");
+const { Request, User, Report } = require("../models");
 
 exports.createRequest = async (req, res) => {
   try {
@@ -78,6 +78,35 @@ exports.getLatestRequests = async (req, res) => {
     res.send({ isSuccess: true, requests });
   } catch (err) {
     console.error("최신 요청 불러오기 오류:", err);
+    res.status(500).send("서버 오류!");
+  }
+};
+
+exports.getMyRequests = async (req, res) => {
+  try {
+    const userId = req.session.user?.id;
+    if (!userId) {
+      return res
+        .status(401)
+        .send({ isSuccess: false, message: "로그인이 필요합니다." });
+    }
+
+    const myRequests = await Request.findAll({
+      where: { userId },
+      attributes: ["id", "title", "budget", "status", "hasReport"], // ✅ hasReport 필드 포함
+      include: [
+        {
+          model: Report,
+          attributes: ["id"],
+          required: false,
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.send({ isSuccess: true, myRequests });
+  } catch (error) {
+    console.error("내 요청 목록 가져오기 오류:", error);
     res.status(500).send("서버 오류!");
   }
 };

@@ -51,6 +51,11 @@ const RequestModel = (sequelize, DataTypes) => {
           key: "id",
         },
       },
+      hasReport: {
+        // ✅ 새 필드 추가
+        type: DataTypes.BOOLEAN,
+        defaultValue: false, // 기본값 false (리포트 작성 전)
+      },
     },
     {
       freezeTableName: true,

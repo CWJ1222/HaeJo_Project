@@ -10,6 +10,8 @@ import {
 import MyBids from "./Profile/MyBids";
 import { Bid, MyBid } from "../types/bid";
 import ProfileInfo from "./Profile/ProfileInfo";
+import ViewReportModal from "../components/ViewReportModal";
+import { RequestItem } from "../types/request";
 
 const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm"; // Toss Payments Client Key
 
@@ -17,16 +19,6 @@ interface ProfileProps {
   onChangePage: (
     page: "home" | "login" | "register" | "requests" | "profile"
   ) => void;
-}
-
-interface RequestItem {
-  id: number;
-  title: string;
-  budget: number;
-  amount: number; // ✅ 선택된 입찰 금액 추가
-  status: string;
-  selectedBid?: { id: number; amount: number; User: { nickname: string } };
-  Bids: Bid[];
 }
 
 const statusText: { [key: string]: string } = {
@@ -47,6 +39,7 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
   const [selectedRequest, setSelectedRequest] = useState<null | RequestItem>(
     null
   );
+  const [selectedReport, setSelectedReport] = useState(null);
 
   const [widgets, setWidgets] = useState<null | TossPaymentsWidgets>(null);
 
@@ -80,6 +73,8 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
         );
 
         if (res.data.isSuccess) {
+          console.log("📌 요청 목록 데이터11:", res.data.myRequests); // ✅ 디버깅용 로그 추가
+
           setMyRequests(res.data.myRequests);
         }
       } catch (error) {
@@ -107,8 +102,10 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
     if (!user) {
       fetchUserProfile();
     }
-    fetchMyRequests();
+    console.log("📌 API 요청 실행: 내 요청 목록 가져오기");
+
     fetchMyBids(); // ✅ 내 입찰 목록 불러오기
+    fetchMyRequests();
   }, [user, dispatch, onChangePage]);
 
   const handleSelectBid = async (requestId: number, bidId: number) => {
@@ -132,6 +129,23 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
     } catch (error) {
       console.error("입찰 선택 실패:", error);
       alert("입찰 선택 중 오류가 발생했습니다.");
+    }
+  };
+  // ✅ 리포트 조회 함수 추가
+  const handleViewReport = async (requestId: number) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:8080/api-server/report/${requestId}`,
+        { withCredentials: true }
+      );
+      if (res.data.isSuccess) {
+        setSelectedReport(res.data.report);
+      } else {
+        alert("리포트를 확인할 수 없습니다.");
+      }
+    } catch (error) {
+      console.error("리포트 조회 오류:", error);
+      alert("리포트 조회 중 오류가 발생했습니다.");
     }
   };
 
@@ -243,6 +257,23 @@ const Profile: React.FC<ProfileProps> = ({ onChangePage }) => {
             <p className="mt-2 text-sm font-semibold">
               상태: {statusText[request.status] || "알 수 없음"}
             </p>
+            {/* ✅ 상태가 결제 완료이고, 리포트가 존재하면 "리포트 확인" 버튼 표시 */}
+            {request.status === "paid" && request.hasReport && (
+              <button
+                onClick={() => handleViewReport(request.id)}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+              >
+                리포트 확인
+              </button>
+            )}
+
+            {/* ✅ 리포트 모달 표시 */}
+            {selectedReport && (
+              <ViewReportModal
+                report={selectedReport}
+                onClose={() => setSelectedReport(null)}
+              />
+            )}
 
             {/* ✅ 마감된 요청일 경우 선택된 입찰 금액 표시 */}
             {request.status === "closed" && request.selectedBid && (
