@@ -51,7 +51,6 @@ const MyBids: React.FC<MyBidsProps> = ({ myBids }) => {
           </div>
         ))
       )}
-
       {/* ✅ 리포트 모달 */}
       {selectedRequestId && (
         <ReportModal

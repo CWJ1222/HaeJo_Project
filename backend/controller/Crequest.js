@@ -67,7 +67,7 @@ exports.getLatestRequests = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ["nickname"], // 요청한 사용자의 닉네임 가져오기
+          attributes: ["id", "nickname"], // 요청한 사용자의 닉네임 가져오기
           required: false,
         },
       ],

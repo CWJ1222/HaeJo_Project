@@ -61,7 +61,14 @@ const Home: React.FC<HomeProps> = ({ onChangePage }) => {
               id={request.id}
               title={request.title}
               budget={`${request.budget.toLocaleString()}원`}
-              user={request.User?.nickname || "알 수 없음"}
+              user={
+                request.User && "id" in request.User
+                  ? {
+                      id: request.User.id as number,
+                      nickname: request.User.nickname,
+                    }
+                  : { id: 0, nickname: "알 수 없음" }
+              }
               currentUserId={currentUserId}
               onChangePage={onChangePage} // 로그인 이동 가능하도록 전달
             />

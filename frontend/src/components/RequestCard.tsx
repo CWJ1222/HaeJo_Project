@@ -7,7 +7,7 @@ interface RequestProps {
   id: number;
   title: string;
   budget: string;
-  user: string;
+  user: { id: number; nickname: string }; // ✅ 객체 타입으로 수정
   currentUserId: number;
   onChangePage: (page: "login" | "bid") => void;
 }
@@ -38,13 +38,15 @@ const RequestCard: React.FC<RequestProps> = ({
     <div className="bg-white p-4 shadow-lg rounded-lg">
       <h3 className="text-lg font-semibold">{title}</h3>
       <p className="text-gray-600 mt-2">예산: {budget}</p>
-      <p className="text-sm text-gray-500">등록자: {user}</p>
-      <button
-        className="mt-3 bg-blue-500 text-white px-4 py-2 rounded"
-        onClick={handleBidClick}
-      >
-        입찰하기
-      </button>
+      <p className="text-sm text-gray-500">등록자: {user.nickname}</p>
+      {currentUserId !== user.id && (
+        <button
+          className="mt-3 bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={handleBidClick}
+        >
+          입찰하기
+        </button>
+      )}
 
       {isBidModalOpen && (
         <BidModal

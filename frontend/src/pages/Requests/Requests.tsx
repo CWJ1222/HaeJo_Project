@@ -4,6 +4,7 @@ import { RootState } from "../../store/store";
 import axios from "axios";
 import Footer from "../../components/Footer";
 import RequestCard from "../../components/RequestCard";
+import { RequestItem } from "../../types/request";
 
 interface RequestsProps {
   onChangePage: (
@@ -17,14 +18,6 @@ interface RequestsProps {
       | "chat"
       | "bid"
   ) => void;
-}
-
-interface RequestItem {
-  id: number;
-  title: string;
-  budget: number;
-  createdAt: string;
-  User?: { nickname: string };
 }
 
 const Requests: React.FC<RequestsProps> = ({ onChangePage }) => {
@@ -92,7 +85,11 @@ const Requests: React.FC<RequestsProps> = ({ onChangePage }) => {
                   id={req.id}
                   title={req.title}
                   budget={`${req.budget.toLocaleString()}원`}
-                  user={req.User?.nickname ?? "알 수 없음"}
+                  user={
+                    req.User
+                      ? { id: req.User.id, nickname: req.User.nickname }
+                      : { id: 0, nickname: "알 수 없음" }
+                  }
                   currentUserId={currentUserId}
                   onChangePage={onChangePage}
                 />
